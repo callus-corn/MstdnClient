@@ -23,88 +23,57 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AuthAPIPresenter {
     private final CompositeDisposable dis = new CompositeDisposable();
-    private AuthorizationView auth;
     private Host host;
-    private Subject<Boolean> register = BehaviorSubject.create();
 
-    public AuthAPIPresenter(AuthorizationView authorizationView){
-        auth = authorizationView;
-    }
-
-    public void start(){
-
-        Observable<String> authorization = Observable.create(o -> auth.startAuthorization(v-> {
-            auth.pause();
-            o.onNext(auth.getHostName());
-        }));
-
-        Disposable d = authorization.subscribe(hostName -> {
+    public Observable<String> authorize(String hostName){
+        return Observable.create(o->{
             host = HostHolder.getInstance().getHost(hostName);
-
             if(!host.isRegistered()) {
-                this.register(host);
-            }
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("https://" + host.getHostName())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
 
-            if(host.isAccessible()){
-                auth.complete();
+                MstdnAPI api = retrofit.create(MstdnAPI.class);
+                Disposable d = api.register("MstdnClient","mstdn://com.corn.collus.mstdnclient",host.getScope())
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(client -> {
+                            host.setClient(client);
+                            o.onNext("https://" + host.getHostName() + "/oauth/authorize?response_type=code&redirect_uri=mstdn://com.corn.collus.mstdnclient" + "&client_id=" + host.getClientId() + "&scope=" + host.getScope());
+                        },e->{});
+                dis.add(d);
             }else {
-                register.subscribe(b-> {
-                    String url = "https://" + host.getHostName() + "/oauth/authorize?response_type=code&redirect_uri=mstdn://com.corn.collus.mstdnclient" + "&client_id=" + host.getClientId() + "&scope=" + host.getScope();
-                    auth.startBrowserAuthorization(url);
-                    auth.liftPause();
-                });
+                o.onNext("https://" + host.getHostName() + "/oauth/authorize?response_type=code&redirect_uri=mstdn://com.corn.collus.mstdnclient" + "&client_id=" + host.getClientId() + "&scope=" + host.getScope());
             }
         });
-
-        dis.add(d);
     }
 
-    public void updateUri(Uri uri){
-        if(uri!=null){
+    public Observable<Boolean> updateUri(Uri uri){
+        return Observable.create(o-> {
             String code = uri.getQueryParameter("code");
             host.setCode(code);
-            this.getAccessToken(host);
-        }
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://" + host.getHostName())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+
+            MstdnAPI api = retrofit.create(MstdnAPI.class);
+            Disposable d = api.getAccessToken("mstdn://com.corn.collus.mstdnclient","authorization_code",host.getClientId(),host.getClientSecret(),host.getCode(),host.getScope())
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(accessToken ->{
+                        host.setAccessToken(accessToken);
+                        HostHolder.getInstance().setHost(host);
+                        o.onNext(true);
+                    },e->{});
+            dis.add(d);
+        });
     }
 
     public void stop(){
         dis.dispose();
-    }
-
-    private void register(Host host){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://" + host.getHostName())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        MstdnAPI api = retrofit.create(MstdnAPI.class);
-        Disposable d = api.register("MstdnClient","mstdn://com.corn.collus.mstdnclient",host.getScope())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(client -> {
-                    host.setClient(client);
-                    register.onNext(true);
-                },e->{});
-        dis.add(d);
-    }
-
-    private void getAccessToken(Host host){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://" + host.getHostName())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        MstdnAPI api = retrofit.create(MstdnAPI.class);
-        Disposable d = api.getAccessToken("mstdn://com.corn.collus.mstdnclient","authorization_code",host.getClientId(),host.getClientSecret(),host.getCode(),host.getScope())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(accessToken ->{
-                    host.setAccessToken(accessToken);
-                    HostHolder.getInstance().setHost(host);
-                    auth.complete();
-                });
-        dis.add(d);
     }
 }

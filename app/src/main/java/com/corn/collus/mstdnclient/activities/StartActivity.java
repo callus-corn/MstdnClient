@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+
 import com.corn.collus.mstdnclient.R;
 import com.corn.collus.mstdnclient.models.HostHolder;
+
 
 public class StartActivity extends AppCompatActivity {
 
@@ -18,8 +20,9 @@ public class StartActivity extends AppCompatActivity {
 
         if(hostHolder.isEmpty())
         {
-            Intent i = new Intent(this,AuthorizationActivity.class);
+           Intent i = new Intent(this,AuthorizationActivity.class);
             startActivity(i);
+
         }else {
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);

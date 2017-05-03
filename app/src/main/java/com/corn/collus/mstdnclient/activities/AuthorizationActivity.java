@@ -4,22 +4,37 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.corn.collus.mstdnclient.R;
 import com.corn.collus.mstdnclient.presenters.AuthAPIPresenter;
-import com.corn.collus.mstdnclient.presenters.AuthorizationView;
 
-public class AuthorizationActivity extends AppCompatActivity implements AuthorizationView{
-    private AuthAPIPresenter api = new AuthAPIPresenter(this);
+public class AuthorizationActivity extends AppCompatActivity{
+    private AuthAPIPresenter api = new AuthAPIPresenter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authorization);
-        api.start();
+
+        if(Intent.ACTION_VIEW.equals(getIntent().getAction()))
+        {
+            //ブラウザからこのアクティビティが直接呼び出された場合
+            complete();
+        }
+
+        Button button = (Button)findViewById(R.id.auth_button);
+        button.setOnClickListener(v->{
+            button.setEnabled(false);
+            EditText editText = (EditText)findViewById(R.id.auth_edit_text);
+            String hostName = editText.getText().toString();
+            if(!hostName.equals("")) {
+                api.authorize(hostName)
+                        .subscribe(url -> startBrowserAuthorization(url));
+            }
+            button.setEnabled(true);
+        });
     }
 
     @Override
@@ -33,8 +48,9 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
         super.onRestart();
         Intent intent = getIntent();
         Uri uri = intent.getData();
-        api.updateUri(uri);
-
+        if(uri != null) {
+            api.updateUri(uri).subscribe(b -> complete());
+        }
     }
 
     @Override
@@ -44,39 +60,13 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
         api.stop();
     }
 
-    @Override
-    public void startAuthorization(View.OnClickListener listner){
-        Button button = (Button)findViewById(R.id.auth_button);
-        button.setOnClickListener(listner);
-    }
-
-    @Override
-    public String getHostName(){
-        EditText editText = (EditText)findViewById(R.id.auth_edit_text);
-        return editText.getText().toString();
-    }
-
-    @Override
-    public void startBrowserAuthorization(String url){
+    private void startBrowserAuthorization(String url){
         Uri uri = Uri.parse(url);
         Intent i = new Intent(Intent.ACTION_VIEW,uri);
         startActivity(i);
     }
 
-    @Override
-    public void pause(){
-        Button button = (Button)findViewById(R.id.auth_button);
-        button.setEnabled(false);
-    }
-
-    @Override
-    public void liftPause(){
-        Button button = (Button)findViewById(R.id.auth_button);
-        button.setEnabled(true);
-    }
-
-    @Override
-    public void complete(){
+    private void complete(){
         Intent i = new Intent(this,StartActivity.class);
         startActivity(i);
         this.finish();
