@@ -11,8 +11,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -67,6 +65,7 @@ public class AuthAPIPresenter {
                     .subscribe(accessToken ->{
                         host.setAccessToken(accessToken);
                         HostHolder.getInstance().setHost(host);
+                        HostHolder.getInstance().setActive(host);
                         o.onNext(true);
                     },e->{});
             dis.add(d);

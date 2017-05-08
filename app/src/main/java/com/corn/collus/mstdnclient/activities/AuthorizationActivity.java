@@ -31,9 +31,12 @@ public class AuthorizationActivity extends AppCompatActivity{
             String hostName = editText.getText().toString();
             if(!hostName.equals("")) {
                 api.authorize(hostName)
-                        .subscribe(url -> startBrowserAuthorization(url));
+                        .subscribe(url ->{
+                            startBrowserAuthorization(url);
+                        });
+            }else{
+                button.setEnabled(true);
             }
-            button.setEnabled(true);
         });
     }
 
@@ -50,6 +53,9 @@ public class AuthorizationActivity extends AppCompatActivity{
         Uri uri = intent.getData();
         if(uri != null) {
             api.updateUri(uri).subscribe(b -> complete());
+        }else {
+            Button button = (Button)findViewById(R.id.auth_button);
+            button.setEnabled(true);
         }
     }
 

@@ -13,6 +13,7 @@ public class HostHolder {
     private static HostHolder hostHolder = new HostHolder();
     Map<String,Host> hosts;
     Set<String> keys;
+    Host active = null;
 
     private HostHolder(){
         hosts = new HashMap<String,Host>();
@@ -34,5 +35,13 @@ public class HostHolder {
     public void setHost(Host host){
         hosts.put(host.getHostName(),host);
         keys.add(host.getHostName());
+    }
+
+    public void setActive(Host host){
+        active = host;
+    }
+
+    public Host getActive() {
+        return active;
     }
 }

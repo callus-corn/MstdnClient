@@ -20,6 +20,8 @@
         android:text="サーバー:"/>
 
     <EditText
+        style="@style/EditTextStyle"
+        app:theme="@style/EditTextStyle"
         android:labelFor="@+id/auth_edit_text"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
@@ -47,6 +49,7 @@
         app:layout_constraintRight_toRightOf="@+id/auth_edit_text"
         android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="@+id/auth_edit_text"
+        android:background="@android:color/white"
 
         android:text="接続" />
 

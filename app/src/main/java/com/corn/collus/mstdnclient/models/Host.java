@@ -32,6 +32,7 @@ public class Host {
     public String getCode() {
         return code;
     }
+    public String getAccessToken() {return accessToken;}
 
     public void setCode(String codeParameter){
         code = codeParameter;
