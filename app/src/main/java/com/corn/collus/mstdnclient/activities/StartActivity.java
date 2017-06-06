@@ -26,6 +26,7 @@ public class StartActivity extends AppCompatActivity {
         }else {
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);
+
         }
         this.finish();
     }

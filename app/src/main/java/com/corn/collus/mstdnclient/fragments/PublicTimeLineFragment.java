@@ -15,7 +15,7 @@ import com.corn.collus.mstdnclient.R;
  * Created by mitsu on 2017/05/05.
  */
 
-public class LocalTimeLineFragment extends Fragment{
+public class PublicTimeLineFragment extends Fragment{
 
     private SwipeRefreshLayout swipe;
     private ListView listView;
@@ -28,16 +28,18 @@ public class LocalTimeLineFragment extends Fragment{
         adapter = new TootAdapter(getActivity());
         listView = (ListView)view.findViewById(R.id.pull_list);
         listView.setAdapter(adapter);
+        adapter.refreshPublic().subscribe();
+
 
         swipe = (SwipeRefreshLayout)view.findViewById(R.id.pull_swipe);
         swipe.setOnRefreshListener(()->{
-            adapter.refresh().subscribe(()->swipe.setRefreshing(false));
+            adapter.refreshPublic().subscribe(()->swipe.setRefreshing(false));
         });
 
         return view;
     }
 
     public static String getTitle(){
-        return "Local";
+        return "Public";
     }
 }

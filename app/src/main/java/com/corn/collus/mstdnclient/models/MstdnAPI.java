@@ -25,4 +25,11 @@ public interface MstdnAPI {
 
     @GET("api/v1/timelines/home?limit=40")
     Observable<List<Toot>> getHome(@Header("Authorization")String header, @Query("since_id")String since_id);
+
+    @GET("api/v1/timelines/public?limit=40")
+    Observable<List<Toot>> getPublic(@Header("Authorization")String header, @Query("since_id")String since_id);
+
+    @FormUrlEncoded
+    @POST("api/v1/statuses")
+    Observable<Toot> toot(@Header("Authorization")String header,@Field("status")String text);
 }

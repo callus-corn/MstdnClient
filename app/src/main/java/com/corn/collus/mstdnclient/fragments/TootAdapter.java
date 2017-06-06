@@ -22,20 +22,30 @@ import io.reactivex.Completable;
  */
 
 public class TootAdapter extends BaseAdapter{
-    LayoutInflater inflater=null;
-    List<Toot> tootList;
+    private LayoutInflater inflater=null;
+    private List<Toot> tootList;
+    private APIPresenter api = APIPresenter.getInstance();
 
     public TootAdapter(Context context){
         tootList = new ArrayList<Toot>();
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public Completable refresh(){
+    public Completable refreshHome(){
         return Completable.create(o->{
-            APIPresenter api = APIPresenter.getInstance();
             api.readHome().subscribe(toots -> {
                 tootList.addAll(0,toots);
-                this.notifyDataSetChanged();
+                super.notifyDataSetChanged();
+                o.onComplete();
+            });
+        });
+    }
+
+    public Completable refreshPublic(){
+        return Completable.create(o->{
+            api.readPublic().subscribe(toots -> {
+                tootList.addAll(0,toots);
+                super.notifyDataSetChanged();
                 o.onComplete();
             });
         });

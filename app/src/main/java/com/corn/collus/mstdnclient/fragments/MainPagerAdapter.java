@@ -19,7 +19,7 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return new HomeTimeLineFragment();
             case 1:
-                return new LocalTimeLineFragment();
+                return new PublicTimeLineFragment();
             default:
                 return null;
         }
@@ -36,7 +36,7 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return HomeTimeLineFragment.getTitle();
             case 1:
-                return LocalTimeLineFragment.getTitle();
+                return PublicTimeLineFragment.getTitle();
             default:
                 return null;
         }

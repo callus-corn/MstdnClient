@@ -7,7 +7,7 @@ package com.corn.collus.mstdnclient.models;
 public class Toot {
     private String id;
     private String content;
-
+    private Account account;
 
     public String getId() {
         return id;
@@ -15,5 +15,9 @@ public class Toot {
 
     public String getContent() {
         return content;
+    }
+
+    private class Account{
+
     }
 }

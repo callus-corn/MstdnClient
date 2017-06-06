@@ -30,11 +30,11 @@ public class HomeTimeLineFragment extends Fragment{
         adapter = new TootAdapter(getActivity());
         listView = (ListView)view.findViewById(R.id.pull_list);
         listView.setAdapter(adapter);
-        adapter.refresh().subscribe();
+        adapter.refreshHome().subscribe();
 
         swipe = (SwipeRefreshLayout)view.findViewById(R.id.pull_swipe);
         swipe.setOnRefreshListener(()->{
-            adapter.refresh()
+            adapter.refreshHome()
                     .subscribe(()->swipe.setRefreshing(false));
         });
 
